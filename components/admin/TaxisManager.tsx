@@ -1,13 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Plus, Edit, Trash2, ChevronLeft, Image as ImageIcon, Car } from 'lucide-react';
-import { MOCK_TAXIS } from '../../constants';
 import { TaxiOption } from '../../types';
+import api from '../../services/api';
 
 export const TaxisManager = () => {
     const [mode, setMode] = useState<'list' | 'create' | 'edit'>('list');
-    const [taxis, setTaxis] = useState<TaxiOption[]>(MOCK_TAXIS);
+    const [taxis, setTaxis] = useState<TaxiOption[]>([]);
     const [currentTaxi, setCurrentTaxi] = useState<Partial<TaxiOption>>({});
     const [features, setFeatures] = useState<string[]>([]);
+    const [loading, setLoading] = useState(false);
+
+    const fetchTaxis = async () => {
+        setLoading(true);
+        try {
+            const response = await api.get('/taxis');
+            setTaxis(response.data.taxis || response.data);
+        } catch (error) {
+            console.error('Error fetching taxis:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchTaxis();
+    }, []);
 
     const handleEdit = (taxi: TaxiOption) => {
         setCurrentTaxi(taxi);
@@ -21,24 +38,42 @@ export const TaxisManager = () => {
         setMode('create');
     };
 
-    const handleSave = () => {
-        if (mode === 'create') {
-            const newTaxi = {
+    const handleSave = async () => {
+        try {
+            const taxiData = {
                 ...currentTaxi,
-                id: Math.random().toString(36).substr(2, 9),
                 features,
-                image: 'https://picsum.photos/400/250?random=' + Math.floor(Math.random() * 100),
-            } as TaxiOption;
-            setTaxis([...taxis, newTaxi]);
-        } else {
-            setTaxis(taxis.map(t => t.id === currentTaxi.id ? { ...currentTaxi, features } as TaxiOption : t));
+                // Ensure required fields
+                image: currentTaxi.image || 'https://picsum.photos/400/250?random=' + Math.floor(Math.random() * 100),
+                name: currentTaxi.name || 'New Taxi',
+                type: currentTaxi.type || 'Sedan',
+                pricePerKm: currentTaxi.pricePerKm || 0,
+                baseFare: currentTaxi.baseFare || 0,
+                capacity: currentTaxi.capacity || 4
+            };
+
+            if (mode === 'create') {
+                await api.post('/taxis', taxiData);
+            } else {
+                await api.put(`/taxis/${currentTaxi.id}`, taxiData);
+            }
+            fetchTaxis();
+            setMode('list');
+        } catch (error: any) {
+            console.error('Error saving taxi:', error);
+            alert(`Failed to save taxi: ${error.response?.data?.message || error.message}`);
         }
-        setMode('list');
     };
 
-    const handleDelete = (id: string) => {
+    const handleDelete = async (id: string) => {
         if (window.confirm('Are you sure you want to delete this vehicle?')) {
-            setTaxis(taxis.filter(t => t.id !== id));
+            try {
+                await api.delete(`/taxis/${id}`);
+                fetchTaxis();
+            } catch (error: any) {
+                console.error('Error deleting taxi:', error);
+                alert(`Failed to delete taxi: ${error.response?.data?.message || error.message}`);
+            }
         }
     };
 

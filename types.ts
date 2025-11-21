@@ -5,7 +5,8 @@ export interface Package {
   price: number;
   rating: number;
   reviewsCount: number;
-  days: number;
+  days: number; // Kept for backward compatibility
+  durationDays?: number; // Added for backend compatibility
   image: string;
   images: string[];
   description: string;
@@ -14,7 +15,7 @@ export interface Package {
   included: string[];
   excluded: string[];
   policies: string[];
-  category: 'Trekking' | 'Temple Tour' | 'Adventure' | 'Relaxation' | 'Honeymoon';
+  category: 'Trekking' | 'Temple Tour' | 'Adventure' | 'Relaxation' | 'Honeymoon' | string;
 }
 
 export interface Booking {
@@ -29,6 +30,19 @@ export interface Booking {
 }
 
 export interface Hotel {
+  id: string;
+  name: string;
+  location: string;
+  pricePerNight: number;
+  rating: number;
+  reviews: number;
+  image: string;
+  images: string[];
+  amenities: string[];
+  description: string;
+}
+
+export interface Homestay {
   id: string;
   name: string;
   location: string;
@@ -61,6 +75,7 @@ export interface BlogPost {
   date: string;
   image: string;
   category: string;
+  tags?: string[];
 }
 
 export enum TravelType {

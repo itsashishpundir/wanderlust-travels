@@ -1,12 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Plus, Edit, Trash2, ChevronLeft, Image as ImageIcon } from 'lucide-react';
-import { MOCK_BLOGS } from '../../constants';
 import { BlogPost } from '../../types';
+import api from '../../services/api';
 
 export const BlogsManager = () => {
     const [mode, setMode] = useState<'list' | 'create' | 'edit'>('list');
-    const [blogs, setBlogs] = useState<BlogPost[]>(MOCK_BLOGS);
+    const [blogs, setBlogs] = useState<BlogPost[]>([]);
     const [currentBlog, setCurrentBlog] = useState<Partial<BlogPost>>({});
+    const [loading, setLoading] = useState(false);
+
+    const fetchBlogs = async () => {
+        setLoading(true);
+        try {
+            const response = await api.get('/blogs');
+            const data = response.data.blogs || response.data;
+            setBlogs(Array.isArray(data) ? data : []);
+        } catch (error) {
+            console.error('Error fetching blogs:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchBlogs();
+    }, []);
 
     const handleEdit = (blog: BlogPost) => {
         setCurrentBlog(blog);
@@ -18,24 +36,42 @@ export const BlogsManager = () => {
         setMode('create');
     };
 
-    const handleSave = () => {
-        if (mode === 'create') {
-            const newBlog = {
+    const handleSave = async () => {
+        try {
+            const blogData = {
                 ...currentBlog,
-                id: Math.random().toString(36).substr(2, 9),
-                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-                image: 'https://picsum.photos/800/600?random=' + Math.floor(Math.random() * 100),
-            } as BlogPost;
-            setBlogs([...blogs, newBlog]);
-        } else {
-            setBlogs(blogs.map(b => b.id === currentBlog.id ? currentBlog as BlogPost : b));
+                // Ensure required fields
+                image: currentBlog.image || 'https://picsum.photos/800/600?random=' + Math.floor(Math.random() * 100),
+                date: currentBlog.date || new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                title: currentBlog.title || 'New Blog Post',
+                category: currentBlog.category || 'General',
+                author: currentBlog.author || 'Admin',
+                excerpt: currentBlog.excerpt || '',
+                content: currentBlog.content || ''
+            };
+
+            if (mode === 'create') {
+                await api.post('/blogs', blogData);
+            } else {
+                await api.put(`/blogs/${currentBlog.id}`, blogData);
+            }
+            fetchBlogs();
+            setMode('list');
+        } catch (error: any) {
+            console.error('Error saving blog post:', error);
+            alert(`Failed to save blog post: ${error.response?.data?.message || error.message}`);
         }
-        setMode('list');
     };
 
-    const handleDelete = (id: string) => {
+    const handleDelete = async (id: string) => {
         if (window.confirm('Are you sure you want to delete this post?')) {
-            setBlogs(blogs.filter(b => b.id !== id));
+            try {
+                await api.delete(`/blogs/${id}`);
+                fetchBlogs();
+            } catch (error: any) {
+                console.error('Error deleting blog post:', error);
+                alert(`Failed to delete blog post: ${error.response?.data?.message || error.message}`);
+            }
         }
     };
 
@@ -84,6 +120,16 @@ export const BlogsManager = () => {
                                 required
                             />
                         </div>
+                        <div className="md:col-span-2">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tags (comma separated)</label>
+                            <input
+                                type="text"
+                                value={currentBlog.tags ? currentBlog.tags.join(', ') : ''}
+                                onChange={e => setCurrentBlog({ ...currentBlog, tags: e.target.value.split(',').map(t => t.trim()) })}
+                                className="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none dark:text-white"
+                                placeholder="nature, hiking, summer"
+                            />
+                        </div>
                     </div>
 
                     <div>
@@ -98,21 +144,59 @@ export const BlogsManager = () => {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Content</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Content (HTML Supported)</label>
+
+                        {/* Simple Rich Text Toolbar */}
+                        <div className="flex flex-wrap gap-2 mb-2 p-2 bg-gray-100 dark:bg-gray-700 rounded-t-lg border border-gray-300 dark:border-gray-600 border-b-0">
+                            <button type="button" onClick={() => setCurrentBlog({ ...currentBlog, content: (currentBlog.content || '') + '<b>Bold Text</b>' })} className="px-2 py-1 bg-white dark:bg-gray-600 rounded text-sm font-bold hover:bg-gray-200">B</button>
+                            <button type="button" onClick={() => setCurrentBlog({ ...currentBlog, content: (currentBlog.content || '') + '<i>Italic Text</i>' })} className="px-2 py-1 bg-white dark:bg-gray-600 rounded text-sm italic hover:bg-gray-200">I</button>
+                            <button type="button" onClick={() => setCurrentBlog({ ...currentBlog, content: (currentBlog.content || '') + '<h1>Heading 1</h1>' })} className="px-2 py-1 bg-white dark:bg-gray-600 rounded text-sm font-bold hover:bg-gray-200">H1</button>
+                            <button type="button" onClick={() => setCurrentBlog({ ...currentBlog, content: (currentBlog.content || '') + '<h2>Heading 2</h2>' })} className="px-2 py-1 bg-white dark:bg-gray-600 rounded text-sm font-bold hover:bg-gray-200">H2</button>
+                            <button type="button" onClick={() => setCurrentBlog({ ...currentBlog, content: (currentBlog.content || '') + '<ul>\n<li>List Item 1</li>\n<li>List Item 2</li>\n</ul>' })} className="px-2 py-1 bg-white dark:bg-gray-600 rounded text-sm hover:bg-gray-200">List</button>
+                            <button type="button" onClick={() => setCurrentBlog({ ...currentBlog, content: (currentBlog.content || '') + '<ol>\n<li>Item 1</li>\n<li>Item 2</li>\n</ol>' })} className="px-2 py-1 bg-white dark:bg-gray-600 rounded text-sm hover:bg-gray-200">Ordered</button>
+                            <button type="button" onClick={() => setCurrentBlog({ ...currentBlog, content: (currentBlog.content || '') + '<a href="#" class="text-blue-600 hover:underline">Link Text</a>' })} className="px-2 py-1 bg-white dark:bg-gray-600 rounded text-sm text-blue-600 hover:bg-gray-200">Link</button>
+                            <button type="button" onClick={() => setCurrentBlog({ ...currentBlog, content: (currentBlog.content || '') + '<span style="color: red;">Red Text</span>' })} className="px-2 py-1 bg-white dark:bg-gray-600 rounded text-sm text-red-500 hover:bg-gray-200">Color</button>
+                        </div>
+
                         <textarea
-                            rows={8}
+                            rows={12}
                             value={currentBlog.content || ''}
                             onChange={e => setCurrentBlog({ ...currentBlog, content: e.target.value })}
-                            className="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none dark:text-white font-mono text-sm"
+                            className="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-b-lg focus:ring-2 focus:ring-blue-500 outline-none dark:text-white font-mono text-sm"
                             placeholder="Write your article here..."
                         ></textarea>
                     </div>
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cover Image</label>
-                        <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
-                            <ImageIcon size={32} className="mx-auto text-gray-400 mb-2" />
-                            <p className="text-sm text-gray-500">Drag and drop image here</p>
+                        <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition relative">
+                            <input
+                                type="file"
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                onChange={async (e) => {
+                                    if (e.target.files && e.target.files[0]) {
+                                        const formData = new FormData();
+                                        formData.append('image', e.target.files[0]);
+                                        try {
+                                            const res = await api.post('/upload', formData, {
+                                                headers: { 'Content-Type': 'multipart/form-data' }
+                                            });
+                                            setCurrentBlog({ ...currentBlog, image: res.data.imageUrl });
+                                        } catch (err) {
+                                            console.error('Upload failed', err);
+                                            alert('Image upload failed');
+                                        }
+                                    }
+                                }}
+                            />
+                            {currentBlog.image ? (
+                                <img src={currentBlog.image} alt="Preview" className="max-h-48 mx-auto rounded-lg" />
+                            ) : (
+                                <>
+                                    <ImageIcon size={32} className="mx-auto text-gray-400 mb-2" />
+                                    <p className="text-sm text-gray-500">Click or drag to upload image</p>
+                                </>
+                            )}
                         </div>
                     </div>
 

@@ -1,25 +1,59 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import api from '../services/api';
 import { Lock, Mail } from 'lucide-react';
 
 export const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Login attempt:', { email, password });
+    setError('');
+    try {
+      const response = await api.post('/auth/login', { email, password });
+      const { token, user } = response.data;
+
+      // Save token and user info
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+
+      // Redirect or update state
+      console.log('Logged in successfully!');
+      navigate('/');
+    } catch (err: any) {
+      console.error('Login failed:', err.response?.data?.message);
+      setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
+    }
   };
 
   return (
     <div className="min-h-[calc(100vh-64px)] flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-lg">
         <div className="text-center">
+          <div className="flex justify-between mb-6">
+            <button
+              onClick={() => navigate(-1)}
+              className="text-sm text-gray-600 hover:text-gray-900 flex items-center"
+            >
+              ← Back
+            </button>
+            <Link to="/" className="text-sm text-gray-600 hover:text-gray-900 flex items-center">
+              Home
+            </Link>
+          </div>
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
           <p className="mt-2 text-sm text-gray-600">
             Or <Link to="/signup" className="font-medium text-blue-600 hover:text-blue-500">create a new account</Link>
           </p>
         </div>
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <span className="block sm:inline">{error}</span>
+          </div>
+        )}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div className="relative">

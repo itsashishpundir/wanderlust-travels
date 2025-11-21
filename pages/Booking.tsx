@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Calendar, MapPin, Users, Briefcase } from 'lucide-react';
 import { TravelType } from '../types';
+import api from '../services/api';
 
 export const Booking: React.FC = () => {
   const [bookingType, setBookingType] = useState<TravelType>(TravelType.TAXI);
@@ -9,10 +10,22 @@ export const Booking: React.FC = () => {
   const [date, setDate] = useState('');
   const [travelers, setTravelers] = useState(1);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Booking submitted:', { bookingType, pickup, destination, date, travelers });
-    alert('Booking Request Received! Check console.');
+    try {
+      // Note: In a real app, serviceId and amount would come from the selected service context
+      await api.post('/bookings', {
+        serviceType: bookingType,
+        date,
+        details: `Pickup: ${pickup}, Destination: ${destination}, Travelers: ${travelers}`,
+        amount: 0, // Placeholder as this is a general inquiry/booking form
+        serviceId: 'general-inquiry' // Placeholder
+      });
+      alert('Booking Request Sent Successfully!');
+    } catch (error: any) {
+      console.error('Booking failed:', error);
+      alert('Booking failed: ' + (error.response?.data?.message || error.message));
+    }
   };
 
   return (
@@ -22,9 +35,9 @@ export const Booking: React.FC = () => {
           <h1 className="text-2xl font-bold text-white">Book Your Trip</h1>
           <p className="text-blue-100 mt-1">Fill in the details below to reserve your spot.</p>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="p-8 space-y-6">
-          
+
           {/* Travel Type */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Travel Service Type</label>

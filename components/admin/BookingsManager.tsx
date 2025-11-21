@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Filter, MoreVertical, ChevronLeft, Search } from 'lucide-react';
-import { MOCK_BOOKINGS } from '../../constants';
 import { Booking } from '../../types';
+import api from '../../services/api';
 
 const Badge = ({ children, color }: { children: React.ReactNode, color: string }) => {
     const colorClasses: { [key: string]: string } = {
@@ -19,16 +19,51 @@ const Badge = ({ children, color }: { children: React.ReactNode, color: string }
 };
 
 export const BookingsManager = () => {
-    const [bookings, setBookings] = useState<Booking[]>(MOCK_BOOKINGS);
+    const [bookings, setBookings] = useState<Booking[]>([]);
     const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
     const [isEditing, setIsEditing] = useState(false);
+    const [loading, setLoading] = useState(false);
 
-    const handleStatusChange = (id: string, newStatus: Booking['status']) => {
-        setBookings(bookings.map(b => b.id === id ? { ...b, status: newStatus } : b));
+    const fetchBookings = async () => {
+        setLoading(true);
+        try {
+            const response = await api.get('/bookings');
+            setBookings(response.data.bookings || response.data);
+        } catch (error) {
+            console.error('Error fetching bookings:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const handlePaymentStatusChange = (id: string, newStatus: Booking['paymentStatus']) => {
-        setBookings(bookings.map(b => b.id === id ? { ...b, paymentStatus: newStatus } : b));
+    useEffect(() => {
+        fetchBookings();
+    }, []);
+
+    const handleStatusChange = async (id: string, newStatus: Booking['status']) => {
+        try {
+            const booking = bookings.find(b => b.id === id);
+            if (booking) {
+                await api.put(`/bookings/${id}`, { ...booking, status: newStatus });
+                setBookings(bookings.map(b => b.id === id ? { ...b, status: newStatus } : b));
+            }
+        } catch (error: any) {
+            console.error('Error updating booking status:', error);
+            alert(`Failed to update status: ${error.response?.data?.message || error.message}`);
+        }
+    };
+
+    const handlePaymentStatusChange = async (id: string, newStatus: Booking['paymentStatus']) => {
+        try {
+            const booking = bookings.find(b => b.id === id);
+            if (booking) {
+                await api.put(`/bookings/${id}`, { ...booking, paymentStatus: newStatus });
+                setBookings(bookings.map(b => b.id === id ? { ...b, paymentStatus: newStatus } : b));
+            }
+        } catch (error: any) {
+            console.error('Error updating payment status:', error);
+            alert(`Failed to update payment status: ${error.response?.data?.message || error.message}`);
+        }
     };
 
     const handleView = (booking: Booking) => {

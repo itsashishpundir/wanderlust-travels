@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Plus, MapPin, Edit, Trash2, ChevronLeft, Image as ImageIcon } from 'lucide-react';
-import { MOCK_PACKAGES } from '../../constants';
 import { Package } from '../../types';
+import api from '../../services/api';
+import ImageWithFallback from '../ImageWithFallback';
 
 const Badge = ({ children, color }: { children: React.ReactNode, color: string }) => {
     const colorClasses: { [key: string]: string } = {
@@ -20,9 +21,27 @@ const Badge = ({ children, color }: { children: React.ReactNode, color: string }
 
 export const PackagesManager = () => {
     const [mode, setMode] = useState<'list' | 'create' | 'edit'>('list');
-    const [packages, setPackages] = useState<Package[]>(MOCK_PACKAGES);
+    const [packages, setPackages] = useState<Package[]>([]);
     const [currentPackage, setCurrentPackage] = useState<Partial<Package>>({});
     const [itinerary, setItinerary] = useState<string[]>(['', '', '']);
+    const [selectedImage, setSelectedImage] = useState<File | null>(null);
+    const [loading, setLoading] = useState(false);
+
+    const fetchPackages = async () => {
+        setLoading(true);
+        try {
+            const response = await api.get('/packages');
+            setPackages(response.data.packages || response.data);
+        } catch (error) {
+            console.error('Error fetching packages:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchPackages();
+    }, []);
 
     const handleAddDay = () => setItinerary([...itinerary, '']);
     const handleRemoveDay = (index: number) => setItinerary(itinerary.filter((_, i) => i !== index));
@@ -36,29 +55,80 @@ export const PackagesManager = () => {
     const handleCreate = () => {
         setCurrentPackage({});
         setItinerary(['', '', '']);
+        setSelectedImage(null);
         setMode('create');
     };
 
-    const handleSave = () => {
-        if (mode === 'create') {
-            const newPkg = {
+    const handleSave = async () => {
+        try {
+            const packageData = {
                 ...currentPackage,
-                id: Math.random().toString(36).substr(2, 9),
                 itinerary,
-                image: 'https://picsum.photos/800/600?random=' + Math.floor(Math.random() * 100),
-                rating: 0,
-                reviewsCount: 0
-            } as Package;
-            setPackages([...packages, newPkg]);
-        } else {
-            setPackages(packages.map(p => p.id === currentPackage.id ? { ...currentPackage, itinerary } as Package : p));
+                // Ensure required fields are present or have defaults
+                image: currentPackage.image || 'https://picsum.photos/800/600?random=' + Math.floor(Math.random() * 100),
+                rating: currentPackage.rating || 0,
+                reviewsCount: currentPackage.reviewsCount || 0,
+                days: currentPackage.days || 1,
+                price: currentPackage.price || 0,
+                title: currentPackage.title || 'New Package',
+                location: currentPackage.location || 'Unknown',
+                category: currentPackage.category || 'Adventure',
+                description: currentPackage.description || '',
+                highlights: currentPackage.highlights || [],
+                included: currentPackage.included || [],
+                excluded: currentPackage.excluded || [],
+                policies: currentPackage.policies || [],
+                images: currentPackage.images || []
+            };
+
+            if (mode === 'create') {
+                const formData = new FormData();
+                formData.append('title', currentPackage.title || 'New Package');
+                formData.append('location', currentPackage.location || 'Unknown');
+                formData.append('price', (currentPackage.price || 0).toString());
+                formData.append('days', (currentPackage.days || 1).toString());
+                formData.append('description', currentPackage.description || '');
+                formData.append('category', currentPackage.category || 'Adventure');
+                formData.append('rating', (currentPackage.rating || 0).toString());
+                formData.append('reviewsCount', (currentPackage.reviewsCount || 0).toString());
+                formData.append('itinerary', JSON.stringify(itinerary));
+
+                if (selectedImage) {
+                    formData.append('image', selectedImage);
+                } else if (currentPackage.image) {
+                    formData.append('image', currentPackage.image);
+                }
+
+                await api.post('/packages', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+            } else {
+                const packageData = {
+                    ...currentPackage,
+                    itinerary,
+                    days: currentPackage.days || 1, // Ensure days is sent
+                };
+                await api.put(`/packages/${currentPackage.id}`, packageData);
+            }
+            fetchPackages();
+            setMode('list');
+        } catch (error: any) {
+            console.error('Error saving package:', error);
+            alert(`Failed to save package: ${error.response?.data?.message || error.message}`);
         }
-        setMode('list');
     };
 
-    const handleDelete = (id: string) => {
+    const handleDelete = async (id: string) => {
         if (window.confirm('Are you sure you want to delete this package?')) {
-            setPackages(packages.filter(p => p.id !== id));
+            try {
+                await api.delete(`/packages/${id}`);
+                fetchPackages();
+            } catch (error: any) {
+                console.error('Error deleting package:', error);
+                alert(`Failed to delete package: ${error.response?.data?.message || error.message}`);
+            }
         }
     };
 
@@ -177,13 +247,31 @@ export const PackagesManager = () => {
                         </div>
                     </div>
 
-                    {/* Image Upload Mockup */}
+                    {/* Image Upload */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Package Images</label>
-                        <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Package Image</label>
+                        <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 text-center hover:bg-gray-50 dark:hover:bg-gray-700/50 transition relative">
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => {
+                                    if (e.target.files && e.target.files[0]) {
+                                        setSelectedImage(e.target.files[0]);
+                                    }
+                                }}
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                            />
                             <ImageIcon size={32} className="mx-auto text-gray-400 mb-2" />
-                            <p className="text-sm text-gray-500">Drag and drop images here, or click to upload</p>
+                            <p className="text-sm text-gray-500">
+                                {selectedImage ? selectedImage.name : "Drag and drop image here, or click to upload"}
+                            </p>
                         </div>
+                        {currentPackage.image && !selectedImage && (
+                            <div className="mt-2">
+                                <p className="text-xs text-gray-500 mb-1">Current Image:</p>
+                                <img src={currentPackage.image} alt="Current" className="h-20 w-20 object-cover rounded-lg" />
+                            </div>
+                        )}
                     </div>
 
                     {/* Actions */}
@@ -228,7 +316,7 @@ export const PackagesManager = () => {
                             {packages.map((pkg) => (
                                 <tr key={pkg.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <img src={pkg.image} alt="" className="h-12 w-16 object-cover rounded-md" />
+                                        <ImageWithFallback src={pkg.image} alt={pkg.title} className="h-12 w-16 object-cover rounded-md" />
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="text-sm font-bold text-gray-900 dark:text-white line-clamp-1">{pkg.title}</div>
