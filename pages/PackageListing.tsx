@@ -39,8 +39,23 @@ export const PackageListing: React.FC = () => {
   }
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-900 min-h-screen py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-300">
+      {/* Hero Section */}
+      <div className="bg-blue-900 py-20 text-center relative overflow-hidden mb-12">
+        <div className="absolute inset-0 opacity-20">
+          <img
+            src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2021&q=80"
+            alt="Packages Hero"
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div className="relative z-10 px-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Exclusive Travel Packages</h1>
+          <p className="text-blue-200 max-w-2xl mx-auto text-lg">Discover curated adventures and unforgettable journeys tailored just for you.</p>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
         <div className="flex flex-col md:flex-row gap-8">
 
           {/* Filters Sidebar */}

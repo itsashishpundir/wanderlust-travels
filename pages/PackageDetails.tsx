@@ -238,7 +238,16 @@ export const PackageDetails: React.FC = () => {
 
                                 <button
                                     type="button"
-                                    onClick={() => navigate('/booking/summary')}
+                                    onClick={() => navigate('/booking', {
+                                        state: {
+                                            type: 'Package',
+                                            id: pkg.id,
+                                            name: pkg.title,
+                                            price: pkg.price,
+                                            image: pkg.image,
+                                            date: selectedDate
+                                        }
+                                    })}
                                     className="w-full bg-blue-600 text-white py-3.5 rounded-lg font-bold hover:bg-blue-700 transition shadow-md"
                                 >
                                     Proceed to Book

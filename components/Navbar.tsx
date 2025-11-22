@@ -75,7 +75,8 @@ export const Navbar = () => {
             <Link to="/" className="font-medium hover:text-blue-500 transition text-gray-700 dark:text-gray-300">Home</Link>
             <Link to="/packages" className="font-medium hover:text-blue-500 transition text-gray-700 dark:text-gray-300">Packages</Link>
             <Link to="/hotels" className="font-medium hover:text-blue-500 transition text-gray-700 dark:text-gray-300">Hotels</Link>
-            <Link to="/taxis" className="font-medium hover:text-blue-500 transition text-gray-700 dark:text-gray-300">Taxis</Link>
+
+            <Link to="/taxi" className="font-medium hover:text-blue-500 transition text-gray-700 dark:text-gray-300">Taxis</Link>
             <Link to="/homestays" className="font-medium hover:text-blue-500 transition text-gray-700 dark:text-gray-300">Homestays</Link>
             <Link to="/blog" className="font-medium hover:text-blue-500 transition text-gray-700 dark:text-gray-300">Blog</Link>
           </div>
@@ -149,7 +150,8 @@ export const Navbar = () => {
             <Link to="/" className="block px-3 py-2 text-base font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg">Home</Link>
             <Link to="/packages" className="block px-3 py-2 text-base font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg">Packages</Link>
             <Link to="/hotels" className="block px-3 py-2 text-base font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg">Hotels</Link>
-            <Link to="/taxis" className="block px-3 py-2 text-base font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg">Taxis</Link>
+
+            <Link to="/taxi" className="block px-3 py-2 text-base font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg">Taxis</Link>
             <Link to="/homestays" className="block px-3 py-2 text-base font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg">Homestays</Link>
             <Link to="/blog" className="block px-3 py-2 text-base font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg">Blog</Link>
 

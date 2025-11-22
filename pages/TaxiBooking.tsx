@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Calendar, Clock, Check, Info } from 'lucide-react';
+import { Car, Users, Briefcase, CheckCircle, Info } from 'lucide-react';
 import { TaxiOption } from '../types';
 import api from '../services/api';
+import ImageWithFallback from '../components/ImageWithFallback';
 
-export const TaxiBooking: React.FC = () => {
+export const TaxiBooking = () => {
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState('one-way');
-    const [selectedCar, setSelectedCar] = useState<string | null>(null);
     const [taxis, setTaxis] = useState<TaxiOption[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -15,12 +14,7 @@ export const TaxiBooking: React.FC = () => {
         const fetchTaxis = async () => {
             try {
                 const response = await api.get('/taxis');
-                const data = response.data.taxis || response.data;
-                if (Array.isArray(data)) {
-                    setTaxis(data);
-                } else {
-                    setTaxis([]);
-                }
+                setTaxis(response.data.taxis || response.data);
             } catch (error) {
                 console.error('Error fetching taxis:', error);
             } finally {
@@ -32,151 +26,85 @@ export const TaxiBooking: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex justify-center items-center">
+            <div className="min-h-screen flex justify-center items-center bg-gray-50 dark:bg-gray-900">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
             </div>
         );
     }
 
     return (
-        <div className="bg-gray-50 dark:bg-gray-900 min-h-screen py-12 transition-colors duration-300">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-12">
-                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">Book Your Safe Ride</h1>
-                    <p className="text-gray-600 dark:text-gray-400">Choose from our wide range of fleet for outstation or local travel.</p>
+        <div className="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-300">
+            {/* Hero Section */}
+            <div className="bg-blue-900 py-20 text-center relative overflow-hidden">
+                <div className="absolute inset-0 opacity-20">
+                    <img src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" alt="Taxi Background" className="w-full h-full object-cover" />
                 </div>
+                <div className="relative z-10 px-4">
+                    <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Premium Taxi Services</h1>
+                    <p className="text-blue-200 max-w-2xl mx-auto text-lg">Reliable, comfortable, and affordable rides for your journey. Choose from our wide range of vehicles.</p>
+                </div>
+            </div>
 
-                <div className="flex flex-col lg:flex-row gap-10">
-
-                    {/* Booking Form */}
-                    <div className="w-full lg:w-1/3">
-                        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700 sticky top-24">
-                            <div className="flex text-sm font-medium text-center border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-                                <button
-                                    onClick={() => setActiveTab('one-way')}
-                                    className={`w-1/2 py-4 ${activeTab === 'one-way' ? 'bg-white dark:bg-gray-800 text-blue-600 border-t-2 border-blue-600' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'}`}
-                                >
-                                    One Way
-                                </button>
-                                <button
-                                    onClick={() => setActiveTab('round-trip')}
-                                    className={`w-1/2 py-4 ${activeTab === 'round-trip' ? 'bg-white dark:bg-gray-800 text-blue-600 border-t-2 border-blue-600' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'}`}
-                                >
-                                    Round Trip
-                                </button>
-                            </div>
-
-                            <div className="p-6 space-y-5">
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1">From</label>
-                                    <div className="relative">
-                                        <MapPin className="absolute top-3 left-3 text-gray-400" size={18} />
-                                        <input type="text" placeholder="Enter Pickup City" className="w-full pl-10 p-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:border-blue-500 dark:text-white" />
-                                    </div>
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1">To</label>
-                                    <div className="relative">
-                                        <MapPin className="absolute top-3 left-3 text-gray-400" size={18} />
-                                        <input type="text" placeholder="Enter Destination" className="w-full pl-10 p-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:border-blue-500 dark:text-white" />
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1">Date</label>
-                                        <div className="relative">
-                                            <Calendar className="absolute top-3 left-3 text-gray-400" size={18} />
-                                            <input type="date" className="w-full pl-10 p-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:border-blue-500 dark:text-white" />
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1">Time</label>
-                                        <div className="relative">
-                                            <Clock className="absolute top-3 left-3 text-gray-400" size={18} />
-                                            <input type="time" className="w-full pl-10 p-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:border-blue-500 dark:text-white" />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-900">
-                                    <div className="flex justify-between text-sm mb-1 text-gray-700 dark:text-gray-300">
-                                        <span>Est. Distance:</span>
-                                        <span className="font-bold">250 km</span>
-                                    </div>
-                                    <div className="flex justify-between text-sm text-gray-700 dark:text-gray-300">
-                                        <span>Est. Time:</span>
-                                        <span className="font-bold">5 hrs 30 mins</span>
-                                    </div>
-                                </div>
-
-                                <button className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 shadow-lg transition">
-                                    Search Cabs
-                                </button>
-                            </div>
-                        </div>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                {taxis.length === 0 ? (
+                    <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-xl shadow-sm">
+                        <Car size={48} className="mx-auto text-gray-400 mb-4" />
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No Taxis Available</h3>
+                        <p className="text-gray-500 dark:text-gray-400">We are currently updating our fleet. Please check back later.</p>
                     </div>
-
-                    {/* Car Selection */}
-                    <div className="w-full lg:w-2/3 space-y-6">
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-white">Available Cars</h3>
-
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {taxis.map((car) => (
-                            <div
-                                key={car.id}
-                                onClick={() => setSelectedCar(car.id)}
-                                className={`bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 flex flex-col md:flex-row gap-6 border-2 cursor-pointer transition-all ${selectedCar === car.id ? 'border-blue-500 ring-2 ring-blue-100 dark:ring-blue-900' : 'border-transparent hover:border-gray-200 dark:hover:border-gray-700'}`}
-                            >
-                                <div className="w-full md:w-1/3">
-                                    <img src={car.image} alt={car.name} className="w-full h-40 object-cover rounded-lg" />
+                            <div key={car.id} className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300 flex flex-col">
+                                <div className="h-56 overflow-hidden relative group">
+                                    <ImageWithFallback src={car.image} alt={car.name} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" />
+                                    <div className="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-md">
+                                        {car.type}
+                                    </div>
                                 </div>
-                                <div className="w-full md:w-2/3 flex flex-col justify-between">
-                                    <div className="flex justify-between items-start">
+
+                                <div className="p-6 flex-grow flex flex-col">
+                                    <div className="flex justify-between items-start mb-4">
                                         <div>
-                                            <h4 className="text-xl font-bold text-gray-900 dark:text-white">{car.name}</h4>
-                                            <p className="text-sm text-gray-500 dark:text-gray-400">{car.type} • {car.capacity} Seater</p>
+                                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{car.name}</h3>
+                                            <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm">
+                                                <Users size={16} className="mr-1" /> {car.capacity} Passengers
+                                            </div>
                                         </div>
                                         <div className="text-right">
-                                            <span className="block text-2xl font-bold text-blue-600 dark:text-blue-400">${car.baseFare}</span>
-                                            <span className="text-xs text-gray-400">Base Fare</span>
+                                            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">${car.pricePerKm}</p>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">per km</p>
                                         </div>
                                     </div>
 
-                                    <div className="my-4 flex flex-wrap gap-2">
-                                        {car.features.map((feature, idx) => (
-                                            <span key={idx} className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-xs text-gray-600 dark:text-gray-300 rounded">{feature}</span>
-                                        ))}
-                                    </div>
-
-                                    <div className="flex justify-between items-center border-t border-gray-100 dark:border-gray-700 pt-4">
-                                        <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                                            <Info size={14} className="mr-1" /> ${car.pricePerKm}/km after 250km
+                                    <div className="space-y-3 mb-6 flex-grow">
+                                        <div className="flex items-center justify-between text-sm border-b border-gray-100 dark:border-gray-700 pb-2">
+                                            <span className="text-gray-600 dark:text-gray-300">Base Fare</span>
+                                            <span className="font-semibold text-gray-900 dark:text-white">${car.baseFare}</span>
                                         </div>
-                                        <button className={`px-6 py-2 rounded-md font-semibold transition ${selectedCar === car.id ? 'bg-green-600 text-white' : 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'}`}>
-                                            {selectedCar === car.id ? 'Selected' : 'Select'}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
 
-                        {selectedCar && (
-                            <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4 shadow-2xl z-40 animate-fade-in-up">
-                                <div className="max-w-7xl mx-auto flex justify-between items-center">
-                                    <div>
-                                        <p className="text-gray-500 dark:text-gray-400 text-sm">Total Estimate</p>
-                                        <p className="text-2xl font-bold text-gray-900 dark:text-white">$500.00</p>
+                                        {car.features && car.features.length > 0 && (
+                                            <div className="flex flex-wrap gap-2 mt-3">
+                                                {car.features.map((feature, index) => (
+                                                    <span key={index} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                                        {feature}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
+
                                     <button
-                                        onClick={() => navigate('/booking', { state: { type: 'Taxi', carId: selectedCar } })}
-                                        className="bg-blue-600 text-white px-8 py-3 rounded-lg font-bold shadow-lg hover:bg-blue-700"
+                                        onClick={() => navigate('/booking', { state: { type: 'TAXI', id: car.id, name: car.name, price: car.baseFare } })}
+                                        className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20 flex items-center justify-center"
                                     >
-                                        Proceed to Book
+                                        Book Now
                                     </button>
                                 </div>
                             </div>
-                        )}
+                        ))}
                     </div>
-                </div>
+                )}
             </div>
         </div>
     );

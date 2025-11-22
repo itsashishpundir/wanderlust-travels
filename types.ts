@@ -20,13 +20,20 @@ export interface Package {
 
 export interface Booking {
   id: string;
-  customerName: string;
-  serviceType: 'Package' | 'Taxi' | 'Hotel';
-  details: string;
+  userId: string;
+  customerName?: string; // Mapped from user.name
+  serviceType: 'PACKAGE' | 'TAXI' | 'HOTEL' | 'HOMESTAY';
+  serviceId: string;
+  serviceName: string;
+  details?: string;
   date: string;
-  status: 'Confirmed' | 'Pending' | 'Cancelled' | 'Completed';
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED';
   amount: number;
-  paymentStatus: 'Paid' | 'Unpaid';
+  paymentStatus: 'PAID' | 'UNPAID';
+  user?: {
+    name: string;
+    email: string;
+  };
 }
 
 export interface Hotel {
@@ -72,13 +79,16 @@ export interface BlogPost {
   excerpt: string;
   content: string;
   author: string;
-  date: string;
+  date?: string;
+  createdAt: string;
   image: string;
   category: string;
   tags?: string[];
 }
 
 export enum TravelType {
+  PACKAGE = 'Package',
+  HOMESTAY = 'Homestay',
   TAXI = 'Taxi',
   HOTEL = 'Hotel',
   TREKKING = 'Trekking',

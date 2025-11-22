@@ -27,7 +27,7 @@ export const BookingsManager = () => {
     const fetchBookings = async () => {
         setLoading(true);
         try {
-            const response = await api.get('/bookings');
+            const response = await api.get('/bookings/admin/all');
             setBookings(response.data.bookings || response.data);
         } catch (error) {
             console.error('Error fetching bookings:', error);
@@ -166,12 +166,13 @@ export const BookingsManager = () => {
                                 <tr key={booking.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">#{booking.id}</td>
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="text-sm font-medium text-gray-900 dark:text-white">{booking.customerName}</div>
-                                        <div className="text-xs text-gray-500">user@example.com</div>
+                                        <div className="text-sm font-medium text-gray-900 dark:text-white">{booking.user?.name || booking.customerName || 'Unknown'}</div>
+                                        <div className="text-xs text-gray-500">{booking.user?.email || 'No Email'}</div>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <div className="text-sm text-gray-900 dark:text-white font-medium">{booking.serviceType}</div>
-                                        <div className="text-xs text-gray-500 truncate max-w-xs">{booking.details}</div>
+                                        <div className="text-sm text-gray-900 dark:text-white font-medium">{booking.serviceName}</div>
+                                        <div className="text-xs text-gray-500 truncate max-w-xs">{booking.serviceType}</div>
+                                        {booking.details && <div className="text-xs text-gray-400 truncate max-w-xs mt-1" title={booking.details}>{booking.details}</div>}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{booking.date}</td>
                                     <td className="px-6 py-4 whitespace-nowrap">

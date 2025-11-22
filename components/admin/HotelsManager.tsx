@@ -2,21 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Plus, Edit, Trash2, ChevronLeft, Image as ImageIcon, Star } from 'lucide-react';
 import { Hotel } from '../../types';
 import api from '../../services/api';
-
-const Badge = ({ children, color }: { children: React.ReactNode, color: string }) => {
-    const colorClasses: { [key: string]: string } = {
-        green: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-        red: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
-        blue: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-        yellow: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-        gray: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
-    };
-    return (
-        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${colorClasses[color] || colorClasses.gray}`}>
-            {children}
-        </span>
-    );
-};
+import ImageWithFallback from '../ImageWithFallback';
 
 export const HotelsManager = () => {
     const [mode, setMode] = useState<'list' | 'create' | 'edit'>('list');
@@ -163,15 +149,47 @@ export const HotelsManager = () => {
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Hotel Image</label>
-                        <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
-                            <ImageIcon size={32} className="mx-auto text-gray-400 mb-2" />
-                            <p className="text-sm text-gray-500">Drag and drop image here</p>
+                        <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 text-center hover:bg-gray-50 dark:hover:bg-gray-700/50 transition relative">
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={async (e) => {
+                                    if (e.target.files && e.target.files[0]) {
+                                        const file = e.target.files[0];
+                                        const formData = new FormData();
+                                        formData.append('image', file);
+                                        try {
+                                            const res = await api.post('/upload', formData, {
+                                                headers: { 'Content-Type': 'multipart/form-data' },
+                                            });
+                                            const imageUrl = res.data.imageUrl;
+                                            setCurrentHotel({ ...currentHotel, image: imageUrl });
+                                        } catch (err) {
+                                            console.error('Image upload failed', err);
+                                            alert('Failed to upload image');
+                                        }
+                                    }
+                                }}
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                            />
+                            <div className="flex flex-col items-center justify-center pointer-events-none">
+                                {currentHotel.image ? (
+                                    <img src={currentHotel.image} alt="Preview" className="h-40 object-cover rounded-lg mb-2 shadow-md" />
+                                ) : (
+                                    <>
+                                        <ImageIcon size={48} className="text-gray-400 mb-2" />
+                                        <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">Click to upload hotel image</span>
+                                    </>
+                                )}
+                            </div>
                         </div>
                     </div>
 
-                    <div className="flex justify-end gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                        <button type="button" onClick={() => setMode('list')} className="px-6 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 font-medium hover:bg-gray-50 dark:hover:bg-gray-700">Cancel</button>
-                        <button type="submit" className="px-6 py-2.5 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 shadow-lg">Save Hotel</button>
+                    <div className="flex justify-end pt-4 border-t border-gray-100 dark:border-gray-700">
+                        <button type="button" onClick={() => setMode('list')} className="px-6 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 mr-4">Cancel</button>
+                        <button type="submit" className="px-8 py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 shadow-lg transform transition hover:-translate-y-0.5">
+                            {mode === 'create' ? 'Create Hotel' : 'Save Changes'}
+                        </button>
                     </div>
                 </form>
             </div>
@@ -210,7 +228,7 @@ export const HotelsManager = () => {
                             {hotels.map((hotel) => (
                                 <tr key={hotel.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <img src={hotel.image} alt="" className="h-12 w-16 object-cover rounded-md" />
+                                        <ImageWithFallback src={hotel.image} alt={hotel.name} className="h-12 w-16 object-cover rounded-md" />
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-white">{hotel.name}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{hotel.location}</td>

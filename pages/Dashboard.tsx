@@ -5,6 +5,15 @@ import api from '../services/api';
 
 export const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('bookings');
+  const [bookings, setBookings] = useState<any[]>([]);
+
+  React.useEffect(() => {
+    if (activeTab === 'bookings') {
+      api.get('/bookings/my-bookings')
+        .then(res => setBookings(res.data.bookings || []))
+        .catch(err => console.error('Failed to fetch bookings', err));
+    }
+  }, [activeTab]);
 
   const SidebarItem = ({ id, icon: Icon, label }: any) => (
     <button
@@ -61,32 +70,44 @@ export const Dashboard: React.FC = () => {
                 <div className="animate-fade-in">
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">My Bookings</h2>
                   <div className="space-y-4">
-                    {MOCK_BOOKINGS.map((booking) => (
-                      <div key={booking.id} className="flex flex-col md:flex-row justify-between items-center p-4 border border-gray-200 dark:border-gray-700 rounded-xl hover:shadow-md transition bg-gray-50 dark:bg-gray-800/50">
-                        <div className="flex items-center space-x-4 w-full md:w-auto mb-4 md:mb-0">
-                          <div className={`p-3 rounded-full ${booking.serviceType === 'Package' ? 'bg-purple-100 text-purple-600' :
-                            booking.serviceType === 'Hotel' ? 'bg-orange-100 text-orange-600' :
-                              'bg-green-100 text-green-600'
-                            }`}>
-                            {booking.serviceType === 'Package' ? <Package size={24} /> : booking.serviceType === 'Hotel' ? <MapPin size={24} /> : <CreditCard size={24} />}
+                    {bookings.length > 0 ? (
+                      bookings.map((booking) => (
+                        <div key={booking.id} className="flex flex-col md:flex-row justify-between items-center p-4 border border-gray-200 dark:border-gray-700 rounded-xl hover:shadow-md transition bg-gray-50 dark:bg-gray-800/50">
+                          <div className="flex items-center space-x-4 w-full md:w-auto mb-4 md:mb-0">
+                            <div className={`p-3 rounded-full ${booking.serviceType === 'PACKAGE' ? 'bg-purple-100 text-purple-600' :
+                              booking.serviceType === 'HOTEL' ? 'bg-orange-100 text-orange-600' :
+                                booking.serviceType === 'TAXI' ? 'bg-blue-100 text-blue-600' :
+                                  'bg-green-100 text-green-600'
+                              }`}>
+                              {booking.serviceType === 'PACKAGE' ? <Package size={24} /> :
+                                booking.serviceType === 'HOTEL' ? <MapPin size={24} /> :
+                                  booking.serviceType === 'TAXI' ? <CreditCard size={24} /> : // Using CreditCard as placeholder for Taxi/Other if icon not imported
+                                    <MapPin size={24} />}
+                            </div>
+                            <div>
+                              <h3 className="font-bold text-gray-900 dark:text-white">{booking.serviceName}</h3>
+                              <p className="text-sm text-gray-500 dark:text-gray-400">ID: #{booking.id.slice(0, 8)} • {new Date(booking.date).toLocaleDateString()}</p>
+                              {booking.details && <p className="text-xs text-gray-400 mt-1 max-w-md">{booking.details}</p>}
+                            </div>
                           </div>
-                          <div>
-                            <h3 className="font-bold text-gray-900 dark:text-white">{booking.details}</h3>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">ID: #{booking.id} • {booking.date}</p>
+                          <div className="flex items-center space-x-6 w-full md:w-auto justify-between">
+                            <span className="font-bold text-gray-900 dark:text-white">${booking.amount}</span>
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${booking.status === 'CONFIRMED' ? 'bg-green-100 text-green-800' :
+                              booking.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
+                                'bg-red-100 text-red-800'
+                              }`}>
+                              {booking.status}
+                            </span>
+                            <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">View Details</button>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-6 w-full md:w-auto justify-between">
-                          <span className="font-bold text-gray-900 dark:text-white">${booking.amount}</span>
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${booking.status === 'Confirmed' ? 'bg-green-100 text-green-800' :
-                            booking.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
-                              'bg-red-100 text-red-800'
-                            }`}>
-                            {booking.status}
-                          </span>
-                          <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">View Details</button>
-                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-12">
+                        <p className="text-gray-500 dark:text-gray-400">No bookings found.</p>
+                        <button onClick={() => setActiveTab('trips')} className="text-blue-600 font-bold hover:underline mt-2">Plan a trip now</button>
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
               )}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Plus, Edit, Trash2, ChevronLeft, Image as ImageIcon } from 'lucide-react';
 import { BlogPost } from '../../types';
 import api from '../../services/api';
+import ImageWithFallback from '../ImageWithFallback';
 
 export const BlogsManager = () => {
     const [mode, setMode] = useState<'list' | 'create' | 'edit'>('list');
@@ -13,8 +14,7 @@ export const BlogsManager = () => {
         setLoading(true);
         try {
             const response = await api.get('/blogs');
-            const data = response.data.blogs || response.data;
-            setBlogs(Array.isArray(data) ? data : []);
+            setBlogs(response.data.blogs || response.data);
         } catch (error) {
             console.error('Error fetching blogs:', error);
         } finally {
@@ -169,34 +169,39 @@ export const BlogsManager = () => {
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cover Image</label>
-                        <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition relative">
+                        <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 text-center hover:bg-gray-50 dark:hover:bg-gray-700/50 transition relative">
                             <input
                                 type="file"
-                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                accept="image/*"
                                 onChange={async (e) => {
                                     if (e.target.files && e.target.files[0]) {
+                                        const file = e.target.files[0];
                                         const formData = new FormData();
-                                        formData.append('image', e.target.files[0]);
+                                        formData.append('image', file);
                                         try {
                                             const res = await api.post('/upload', formData, {
-                                                headers: { 'Content-Type': 'multipart/form-data' }
+                                                headers: { 'Content-Type': 'multipart/form-data' },
                                             });
-                                            setCurrentBlog({ ...currentBlog, image: res.data.imageUrl });
+                                            const imageUrl = res.data.imageUrl;
+                                            setCurrentBlog({ ...currentBlog, image: imageUrl });
                                         } catch (err) {
-                                            console.error('Upload failed', err);
-                                            alert('Image upload failed');
+                                            console.error('Image upload failed', err);
+                                            alert('Failed to upload image');
                                         }
                                     }
                                 }}
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                             />
-                            {currentBlog.image ? (
-                                <img src={currentBlog.image} alt="Preview" className="max-h-48 mx-auto rounded-lg" />
-                            ) : (
-                                <>
-                                    <ImageIcon size={32} className="mx-auto text-gray-400 mb-2" />
-                                    <p className="text-sm text-gray-500">Click or drag to upload image</p>
-                                </>
-                            )}
+                            <div className="flex flex-col items-center justify-center pointer-events-none">
+                                {currentBlog.image ? (
+                                    <img src={currentBlog.image} alt="Preview" className="max-h-48 mx-auto rounded-lg mb-2 shadow-md" />
+                                ) : (
+                                    <>
+                                        <ImageIcon size={48} className="text-gray-400 mb-2" />
+                                        <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">Click to upload cover image</span>
+                                    </>
+                                )}
+                            </div>
                         </div>
                     </div>
 
@@ -241,7 +246,7 @@ export const BlogsManager = () => {
                             {blogs.map((blog) => (
                                 <tr key={blog.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <img src={blog.image} alt="" className="h-12 w-16 object-cover rounded-md" />
+                                        <ImageWithFallback src={blog.image} alt={blog.title} className="h-12 w-16 object-cover rounded-md" />
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="text-sm font-bold text-gray-900 dark:text-white line-clamp-1">{blog.title}</div>

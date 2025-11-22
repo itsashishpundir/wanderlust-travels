@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Image as ImageIcon, Save } from 'lucide-react';
 import api from '../../services/api';
+import ImageWithFallback from '../ImageWithFallback';
 
 export const SettingsManager = () => {
     const [settings, setSettings] = useState({
@@ -84,7 +85,7 @@ export const SettingsManager = () => {
                                     onChange={(e) => e.target.files && e.target.files[0] && handleUpload(e.target.files[0], 'logo')}
                                 />
                                 {settings.logo ? (
-                                    <img src={settings.logo} alt="Logo" className="max-h-32 object-contain" />
+                                    <ImageWithFallback src={settings.logo} alt="Logo" className="max-h-32 object-contain" />
                                 ) : (
                                     <>
                                         <ImageIcon size={32} className="text-gray-400 mb-2" />
@@ -105,7 +106,7 @@ export const SettingsManager = () => {
                                     onChange={(e) => e.target.files && e.target.files[0] && handleUpload(e.target.files[0], 'favicon')}
                                 />
                                 {settings.favicon ? (
-                                    <img src={settings.favicon} alt="Favicon" className="h-16 w-16 object-contain" />
+                                    <ImageWithFallback src={settings.favicon} alt="Favicon" className="h-16 w-16 object-contain" />
                                 ) : (
                                     <>
                                         <ImageIcon size={32} className="text-gray-400 mb-2" />

@@ -9,10 +9,12 @@ import { PackageListing } from './pages/PackageListing';
 import { PackageDetails } from './pages/PackageDetails';
 import { TaxiBooking } from './pages/TaxiBooking';
 import { HotelListing } from './pages/HotelListing';
+import { HotelDetails } from './pages/HotelDetails';
 import HomestayListing from './pages/HomestayListing';
+import { HomestayDetails } from './pages/HomestayDetails';
 import { AdminPanel } from './pages/AdminPanel';
 import { AdminLogin } from './pages/AdminLogin';
-import { Booking } from './pages/Booking';
+
 import { Dashboard } from './pages/Dashboard';
 import { Blog } from './pages/Blog';
 import { BlogPost } from './pages/BlogPost';
@@ -29,7 +31,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <div className="flex flex-col min-h-screen">
       {!isAdminRoute && !isAuthRoute && <Navbar />}
-      <main className="flex-grow">
+      <main className="flex-grow pt-16">
         {children}
       </main>
       {!isAdminRoute && !isAuthRoute && <Footer />}
@@ -49,12 +51,15 @@ function App() {
           <Route path="/packages" element={<PackageListing />} />
           <Route path="/package/:id" element={<PackageDetails />} />
 
+
+
           <Route path="/taxi" element={<TaxiBooking />} />
           <Route path="/hotels" element={<HotelListing />} />
+          <Route path="/hotel/:id" element={<HotelDetails />} />
           <Route path="/homestays" element={<HomestayListing />} />
+          <Route path="/homestay/:id" element={<HomestayDetails />} />
 
-          <Route path="/booking" element={<Booking />} />
-          <Route path="/booking/summary" element={<BookingSummary />} />
+          <Route path="/booking" element={<BookingSummary />} />
 
           <Route path="/dashboard" element={<Dashboard />} />
 
@@ -63,7 +68,16 @@ function App() {
 
           <Route path="/support" element={<Support />} />
 
-          <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/admin" element={
+            (() => {
+              const userStr = localStorage.getItem('user');
+              const user = userStr ? JSON.parse(userStr) : null;
+              if (!user || user.role !== 'ADMIN') {
+                return <React.Fragment><AdminLogin /></React.Fragment>;
+              }
+              return <AdminPanel />;
+            })()
+          } />
           <Route path="/admin-login" element={<AdminLogin />} />
         </Routes>
       </Layout>

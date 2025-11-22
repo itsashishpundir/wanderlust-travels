@@ -16,7 +16,6 @@ export const AdminLogin: React.FC = () => {
             const response = await api.post('/auth/login', { email, password });
             const { token, user } = response.data;
 
-            // Check if user is admin
             if (user.role !== 'ADMIN') {
                 setError('Access denied. Admin privileges required.');
                 return;
@@ -25,13 +24,13 @@ export const AdminLogin: React.FC = () => {
             localStorage.setItem('token', token);
             localStorage.setItem('user', JSON.stringify(user));
 
-            console.log('Admin logged in successfully!');
             navigate('/admin');
         } catch (err: any) {
-            console.error('Login failed:', err.response?.data?.message);
+            console.error('Login failed:', err);
             setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
         }
     };
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-2xl">

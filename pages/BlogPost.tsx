@@ -1,11 +1,46 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { MOCK_BLOGS } from '../constants';
 import { Calendar, User, ArrowLeft, Share2, Facebook, Twitter, Linkedin } from 'lucide-react';
+import { BlogPost as BlogPostType } from '../types';
+import api from '../services/api';
 
 export const BlogPost: React.FC = () => {
     const { id } = useParams<{ id: string }>();
-    const blog = MOCK_BLOGS.find(b => b.id === id) || MOCK_BLOGS[0]; // Fallback to first for demo
+    const [blog, setBlog] = useState<BlogPostType | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchBlog = async () => {
+            try {
+                const response = await api.get(`/blogs/${id}`);
+                setBlog(response.data.blogPost || response.data.blog || response.data);
+            } catch (error) {
+                console.error('Error fetching blog post:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        if (id) {
+            fetchBlog();
+        }
+    }, [id]);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex justify-center items-center bg-white dark:bg-gray-900">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
+        );
+    }
+
+    if (!blog) {
+        return (
+            <div className="min-h-screen flex flex-col justify-center items-center bg-white dark:bg-gray-900">
+                <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">Blog Post Not Found</h2>
+                <Link to="/blog" className="text-blue-600 hover:underline">Back to Blog</Link>
+            </div>
+        );
+    }
 
     return (
         <div className="bg-white dark:bg-gray-900 min-h-screen transition-colors duration-300">
@@ -17,7 +52,7 @@ export const BlogPost: React.FC = () => {
                     <h1 className="text-3xl md:text-5xl font-bold text-white mb-4 max-w-4xl leading-tight">{blog.title}</h1>
                     <div className="flex items-center text-gray-200 space-x-6">
                         <span className="flex items-center"><User size={18} className="mr-2" /> {blog.author}</span>
-                        <span className="flex items-center"><Calendar size={18} className="mr-2" /> {blog.date}</span>
+                        <span className="flex items-center"><Calendar size={18} className="mr-2" /> {new Date(blog.date).toLocaleDateString()}</span>
                     </div>
                 </div>
             </div>

@@ -47,6 +47,7 @@ export const AdminPanel: React.FC = () => {
 
           <p className="px-4 text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 mt-6">Management</p>
           <SidebarItem icon={Package} label="Packages" active={activeTab === 'packages'} onClick={() => setActiveTab('packages')} />
+
           <SidebarItem icon={Car} label="Taxi Fleet" active={activeTab === 'taxi'} onClick={() => setActiveTab('taxi')} />
           <SidebarItem icon={Hotel} label="Hotels" active={activeTab === 'hotels'} onClick={() => setActiveTab('hotels')} />
           <SidebarItem icon={Home} label="Homestays" active={activeTab === 'homestays'} onClick={() => setActiveTab('homestays')} />
@@ -59,7 +60,14 @@ export const AdminPanel: React.FC = () => {
         </div>
 
         <div className="p-4 border-t border-gray-800 bg-gray-900">
-          <button className="flex items-center text-gray-400 hover:text-white transition w-full px-2 py-2 rounded-lg hover:bg-gray-800">
+          <button
+            onClick={() => {
+              localStorage.removeItem('token');
+              localStorage.removeItem('user');
+              window.location.href = '/admin-login';
+            }}
+            className="flex items-center text-gray-400 hover:text-white transition w-full px-2 py-2 rounded-lg hover:bg-gray-800"
+          >
             <LogOut size={18} className="mr-3" /> Logout
           </button>
         </div>
@@ -111,6 +119,7 @@ export const AdminPanel: React.FC = () => {
           {activeTab === 'bookings' && <BookingsManager />}
           {activeTab === 'packages' && <PackagesManager />}
           {activeTab === 'hotels' && <HotelsManager />}
+          {activeTab === 'homestays' && <HomestaysManager />}
           {activeTab === 'homestays' && <HomestaysManager />}
           {activeTab === 'taxi' && <TaxisManager />}
           {activeTab === 'blogs' && <BlogsManager />}

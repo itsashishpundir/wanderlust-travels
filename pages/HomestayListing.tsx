@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { MapPin, Star, Home as HomeIcon, Wifi, Coffee, Car } from 'lucide-react';
 import { Homestay } from '../types';
 import api from '../services/api';
-import { Navbar } from '../components/Navbar';
-import { Footer } from '../components/Footer';
 import ImageWithFallback from '../components/ImageWithFallback';
+import { useNavigate } from 'react-router-dom';
 
 const HomestayListing = () => {
+    const navigate = useNavigate();
     const [homestays, setHomestays] = useState<Homestay[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -26,24 +26,19 @@ const HomestayListing = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 font-sans transition-colors duration-300">
-            <Navbar />
 
             {/* Hero Section */}
-            <div className="relative h-[40vh] flex items-center justify-center">
-                <div className="absolute inset-0 z-0">
+            <div className="bg-blue-900 py-20 text-center relative overflow-hidden">
+                <div className="absolute inset-0 opacity-20">
                     <img
                         src="https://images.unsplash.com/photo-1587061949409-02df41d5e562?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
                         alt="Homestays Hero"
-                        className="w-full h-full object-cover filter brightness-50"
+                        className="w-full h-full object-cover"
                     />
                 </div>
-                <div className="relative z-10 text-center px-4">
-                    <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 drop-shadow-lg">
-                        Cozy Homestays
-                    </h1>
-                    <p className="text-xl text-gray-200 max-w-2xl mx-auto drop-shadow-md">
-                        Experience local hospitality and comfort in our handpicked homestays.
-                    </p>
+                <div className="relative z-10 px-4">
+                    <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Cozy Homestays</h1>
+                    <p className="text-blue-200 max-w-2xl mx-auto text-lg">Experience local hospitality and comfort in our handpicked homestays.</p>
                 </div>
             </div>
 
@@ -96,7 +91,10 @@ const HomestayListing = () => {
                                         )}
                                     </div>
 
-                                    <button className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-md flex items-center justify-center">
+                                    <button
+                                        onClick={() => navigate(`/homestay/${homestay.id}`)}
+                                        className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-md flex items-center justify-center"
+                                    >
                                         View Details
                                     </button>
                                 </div>
@@ -113,8 +111,6 @@ const HomestayListing = () => {
                     </div>
                 )}
             </div>
-
-            <Footer />
         </div>
     );
 };

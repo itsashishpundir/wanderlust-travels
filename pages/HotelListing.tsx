@@ -37,9 +37,23 @@ export const HotelListing: React.FC = () => {
     }
 
     return (
-        <div className="bg-gray-50 dark:bg-gray-900 min-h-screen py-12">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">Top Hotels for You</h1>
+        <div className="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-300">
+            {/* Hero Section */}
+            <div className="bg-blue-900 py-20 text-center relative overflow-hidden mb-12">
+                <div className="absolute inset-0 opacity-20">
+                    <img
+                        src="https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80"
+                        alt="Hotels Hero"
+                        className="w-full h-full object-cover"
+                    />
+                </div>
+                <div className="relative z-10 px-4">
+                    <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Luxury Hotels & Resorts</h1>
+                    <p className="text-blue-200 max-w-2xl mx-auto text-lg">Find the perfect stay for your vacation. Comfort and luxury guaranteed.</p>
+                </div>
+            </div>
+
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                     {/* Hotel Filters Sidebar (Simplified) */}
@@ -93,13 +107,13 @@ export const HotelListing: React.FC = () => {
                                             <span className="text-2xl font-bold text-gray-900 dark:text-white">${hotel.pricePerNight}</span>
                                             <span className="text-gray-500 text-sm"> / night</span>
                                         </div>
-                                        <button
-                                            onClick={() => navigate('/booking', { state: { type: 'HOTEL', id: hotel.id, name: hotel.name, price: hotel.pricePerNight } })}
-                                            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
-                                        >
-                                            View Room
-                                        </button>
                                     </div>
+                                    <button
+                                        onClick={() => navigate(`/hotel/${hotel.id}`)}
+                                        className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
+                                    >
+                                        View Details
+                                    </button>
                                 </div>
                             </div>
                         ))}

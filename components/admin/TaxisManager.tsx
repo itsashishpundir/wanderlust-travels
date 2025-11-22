@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Plus, Edit, Trash2, ChevronLeft, Image as ImageIcon, Car } from 'lucide-react';
 import { TaxiOption } from '../../types';
 import api from '../../services/api';
+import ImageWithFallback from '../ImageWithFallback';
 
 export const TaxisManager = () => {
     const [mode, setMode] = useState<'list' | 'create' | 'edit'>('list');
@@ -159,9 +160,39 @@ export const TaxisManager = () => {
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Vehicle Image</label>
-                        <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
-                            <ImageIcon size={32} className="mx-auto text-gray-400 mb-2" />
-                            <p className="text-sm text-gray-500">Drag and drop image here</p>
+                        <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 text-center hover:bg-gray-50 dark:hover:bg-gray-700/50 transition relative">
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={async (e) => {
+                                    if (e.target.files && e.target.files[0]) {
+                                        const file = e.target.files[0];
+                                        const formData = new FormData();
+                                        formData.append('image', file);
+                                        try {
+                                            const res = await api.post('/upload', formData, {
+                                                headers: { 'Content-Type': 'multipart/form-data' },
+                                            });
+                                            const imageUrl = res.data.imageUrl;
+                                            setCurrentTaxi({ ...currentTaxi, image: imageUrl });
+                                        } catch (err) {
+                                            console.error('Image upload failed', err);
+                                            alert('Failed to upload image');
+                                        }
+                                    }
+                                }}
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                            />
+                            <div className="flex flex-col items-center justify-center pointer-events-none">
+                                {currentTaxi.image ? (
+                                    <img src={currentTaxi.image} alt="Preview" className="h-40 object-cover rounded-lg mb-2 shadow-md" />
+                                ) : (
+                                    <>
+                                        <ImageIcon size={48} className="text-gray-400 mb-2" />
+                                        <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">Click to upload vehicle image</span>
+                                    </>
+                                )}
+                            </div>
                         </div>
                     </div>
 
@@ -206,7 +237,7 @@ export const TaxisManager = () => {
                             {taxis.map((taxi) => (
                                 <tr key={taxi.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <img src={taxi.image} alt="" className="h-12 w-16 object-cover rounded-md" />
+                                        <ImageWithFallback src={taxi.image} alt={taxi.name} className="h-12 w-16 object-cover rounded-md" />
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-white">{taxi.name}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{taxi.type}</td>
