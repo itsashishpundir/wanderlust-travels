@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Hotel } from '../types';
 import api from '../services/api';
 import { MapPin, Star, Coffee, Wifi } from 'lucide-react';
@@ -108,12 +108,12 @@ export const HotelListing: React.FC = () => {
                                             <span className="text-gray-500 text-sm"> / night</span>
                                         </div>
                                     </div>
-                                    <button
-                                        onClick={() => navigate(`/hotel/${hotel.id}`)}
+                                    <Link
+                                        to={`/hotel/${hotel.slug || hotel.id}`}
                                         className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
                                     >
                                         View Details
-                                    </button>
+                                    </Link>
                                 </div>
                             </div>
                         ))}

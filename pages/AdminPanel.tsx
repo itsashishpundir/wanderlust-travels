@@ -12,6 +12,7 @@ import { BlogsManager } from '../components/admin/BlogsManager';
 import { BookingsManager } from '../components/admin/BookingsManager';
 import { UsersManager } from '../components/admin/UsersManager';
 import { SettingsManager } from '../components/admin/SettingsManager';
+import { ProfileManager } from '../components/admin/ProfileManager';
 
 const SidebarItem = ({ icon: Icon, label, active, onClick }: any) => (
   <button
@@ -95,12 +96,12 @@ export const AdminPanel: React.FC = () => {
             </button>
 
             {/* Profile */}
-            <div className="flex items-center space-x-3 pl-4 border-l border-gray-200 dark:border-gray-700">
+            <div className="flex items-center space-x-3 pl-4 border-l border-gray-200 dark:border-gray-700 cursor-pointer" onClick={() => setActiveTab('profile')}>
               <div className="text-right hidden sm:block">
                 <p className="text-sm font-bold text-gray-900 dark:text-white">{JSON.parse(localStorage.getItem('user') || '{}').name || 'Admin User'}</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Administrator</p>
               </div>
-              <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 p-0.5 shadow-md cursor-pointer">
+              <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 p-0.5 shadow-md">
                 <div className="h-full w-full rounded-full bg-white dark:bg-gray-800 flex items-center justify-center overflow-hidden">
                   {JSON.parse(localStorage.getItem('user') || '{}').avatar ? (
                     <img src={JSON.parse(localStorage.getItem('user') || '{}').avatar} alt="Admin" className="h-full w-full object-cover" />
@@ -120,11 +121,12 @@ export const AdminPanel: React.FC = () => {
           {activeTab === 'packages' && <PackagesManager />}
           {activeTab === 'hotels' && <HotelsManager />}
           {activeTab === 'homestays' && <HomestaysManager />}
-          {activeTab === 'homestays' && <HomestaysManager />}
+
           {activeTab === 'taxi' && <TaxisManager />}
           {activeTab === 'blogs' && <BlogsManager />}
           {activeTab === 'users' && <UsersManager />}
           {activeTab === 'settings' && <SettingsManager />}
+          {activeTab === 'profile' && <ProfileManager />}
 
           {['coupons', 'reports'].includes(activeTab) && (
             <div className="flex flex-col items-center justify-center h-[60vh] text-gray-400 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800/50">

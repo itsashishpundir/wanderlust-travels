@@ -14,6 +14,7 @@ import HomestayListing from './pages/HomestayListing';
 import { HomestayDetails } from './pages/HomestayDetails';
 import { AdminPanel } from './pages/AdminPanel';
 import { AdminLogin } from './pages/AdminLogin';
+import { NotFound } from './pages/NotFound';
 
 import { Dashboard } from './pages/Dashboard';
 import { Blog } from './pages/Blog';
@@ -79,6 +80,8 @@ function App() {
             })()
           } />
           <Route path="/admin-login" element={<AdminLogin />} />
+          <Route path="/admin-dashboard" element={<AdminPanel />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Layout>
     </BrowserRouter>

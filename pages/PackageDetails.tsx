@@ -117,7 +117,10 @@ export const PackageDetails: React.FC = () => {
                             {activeTab === 'overview' && (
                                 <div className="animate-fade-in">
                                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Trip Overview</h3>
-                                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-6">{pkg.description}</p>
+                                    <div
+                                        className="text-gray-600 dark:text-gray-300 leading-relaxed mb-6 prose dark:prose-invert max-w-none"
+                                        dangerouslySetInnerHTML={{ __html: pkg.description }}
+                                    />
                                     <h4 className="font-bold text-gray-900 dark:text-white mb-3">Highlights</h4>
                                     <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                         {pkg.highlights?.map((h, i) => (

@@ -164,7 +164,7 @@ export const PackageListing: React.FC = () => {
                         <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">${pkg.price}</span>
                         <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">/ person</span>
                       </div>
-                      <Link to={`/package/${pkg.id}`} className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
+                      <Link to={`/package/${pkg.slug || pkg.id}`} className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
                         View Details
                       </Link>
                     </div>

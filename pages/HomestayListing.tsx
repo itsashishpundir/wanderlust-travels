@@ -3,7 +3,7 @@ import { MapPin, Star, Home as HomeIcon, Wifi, Coffee, Car } from 'lucide-react'
 import { Homestay } from '../types';
 import api from '../services/api';
 import ImageWithFallback from '../components/ImageWithFallback';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const HomestayListing = () => {
     const navigate = useNavigate();
@@ -91,12 +91,12 @@ const HomestayListing = () => {
                                         )}
                                     </div>
 
-                                    <button
-                                        onClick={() => navigate(`/homestay/${homestay.id}`)}
+                                    <Link
+                                        to={`/homestay/${homestay.slug || homestay.id}`}
                                         className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-md flex items-center justify-center"
                                     >
                                         View Details
-                                    </button>
+                                    </Link>
                                 </div>
                             </div>
                         ))}

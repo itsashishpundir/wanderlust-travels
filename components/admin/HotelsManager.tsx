@@ -3,6 +3,9 @@ import { Search, Plus, Edit, Trash2, ChevronLeft, Image as ImageIcon, Star } fro
 import { Hotel } from '../../types';
 import api from '../../services/api';
 import ImageWithFallback from '../ImageWithFallback';
+import Editor from 'react-simple-wysiwyg';
+
+
 
 export const HotelsManager = () => {
     const [mode, setMode] = useState<'list' | 'create' | 'edit'>('list');
@@ -51,7 +54,8 @@ export const HotelsManager = () => {
                 name: currentHotel.name || 'New Hotel',
                 location: currentHotel.location || 'Unknown',
                 pricePerNight: currentHotel.pricePerNight || 0,
-                description: currentHotel.description || ''
+                description: currentHotel.description || '',
+                slug: currentHotel.slug
             };
 
             if (mode === 'create') {
@@ -103,6 +107,17 @@ export const HotelsManager = () => {
                             />
                         </div>
                         <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Slug (URL)</label>
+                            <input
+                                type="text"
+                                value={currentHotel.slug || ''}
+                                onChange={e => setCurrentHotel({ ...currentHotel, slug: e.target.value })}
+                                className="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none dark:text-white"
+                                placeholder="e.g. grand-horizon"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">Leave empty to auto-generate from name.</p>
+                        </div>
+                        <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Location</label>
                             <input
                                 type="text"
@@ -124,7 +139,7 @@ export const HotelsManager = () => {
                                 required
                             />
                         </div>
-                        <div>
+                        <div className="md:col-span-2">
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Amenities (comma separated)</label>
                             <input
                                 type="text"
@@ -138,13 +153,13 @@ export const HotelsManager = () => {
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
-                        <textarea
-                            rows={4}
-                            value={currentHotel.description || ''}
-                            onChange={e => setCurrentHotel({ ...currentHotel, description: e.target.value })}
-                            className="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none dark:text-white"
-                            placeholder="Hotel description..."
-                        ></textarea>
+                        <div className="bg-white dark:bg-gray-700 rounded-lg text-black overflow-hidden border border-gray-300 dark:border-gray-600">
+                            <Editor
+                                value={currentHotel.description || ''}
+                                onChange={(e) => setCurrentHotel({ ...currentHotel, description: e.target.value })}
+                                containerProps={{ style: { height: '200px' } }}
+                            />
+                        </div>
                     </div>
 
                     <div>

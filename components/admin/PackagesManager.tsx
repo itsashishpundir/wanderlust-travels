@@ -3,6 +3,9 @@ import { Search, Plus, MapPin, Edit, Trash2, ChevronLeft, Image as ImageIcon } f
 import { Package } from '../../types';
 import api from '../../services/api';
 import ImageWithFallback from '../ImageWithFallback';
+import Editor from 'react-simple-wysiwyg';
+
+
 
 const Badge = ({ children, color }: { children: React.ReactNode, color: string }) => {
     const colorClasses: { [key: string]: string } = {
@@ -78,7 +81,8 @@ export const PackagesManager = () => {
                 included: currentPackage.included || [],
                 excluded: currentPackage.excluded || [],
                 policies: currentPackage.policies || [],
-                images: currentPackage.images || []
+                images: currentPackage.images || [],
+                slug: currentPackage.slug
             };
 
             if (mode === 'create') {
@@ -92,6 +96,7 @@ export const PackagesManager = () => {
                 formData.append('rating', (currentPackage.rating || 0).toString());
                 formData.append('reviewsCount', (currentPackage.reviewsCount || 0).toString());
                 formData.append('itinerary', JSON.stringify(itinerary));
+                if (currentPackage.slug) formData.append('slug', currentPackage.slug);
 
                 if (selectedImage) {
                     formData.append('image', selectedImage);
@@ -157,6 +162,17 @@ export const PackagesManager = () => {
                             />
                         </div>
                         <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Slug (URL)</label>
+                            <input
+                                type="text"
+                                value={currentPackage.slug || ''}
+                                onChange={e => setCurrentPackage({ ...currentPackage, slug: e.target.value })}
+                                className="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none dark:text-white"
+                                placeholder="e.g. majestic-himalayan-trek"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">Leave empty to auto-generate from title.</p>
+                        </div>
+                        <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
                             <select
                                 value={currentPackage.category || 'Adventure'}
@@ -211,13 +227,13 @@ export const PackagesManager = () => {
                     {/* Description */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
-                        <textarea
-                            rows={4}
-                            value={currentPackage.description || ''}
-                            onChange={e => setCurrentPackage({ ...currentPackage, description: e.target.value })}
-                            className="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none dark:text-white"
-                            placeholder="Detailed description of the package..."
-                        ></textarea>
+                        <div className="bg-white dark:bg-gray-700 rounded-lg text-black overflow-hidden border border-gray-300 dark:border-gray-600">
+                            <Editor
+                                value={currentPackage.description || ''}
+                                onChange={(e) => setCurrentPackage({ ...currentPackage, description: e.target.value })}
+                                containerProps={{ style: { height: '200px' } }}
+                            />
+                        </div>
                     </div>
 
                     {/* Itinerary Builder */}

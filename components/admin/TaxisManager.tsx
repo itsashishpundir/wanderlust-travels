@@ -50,7 +50,8 @@ export const TaxisManager = () => {
                 type: currentTaxi.type || 'Sedan',
                 pricePerKm: currentTaxi.pricePerKm || 0,
                 baseFare: currentTaxi.baseFare || 0,
-                capacity: currentTaxi.capacity || 4
+                capacity: currentTaxi.capacity || 4,
+                slug: currentTaxi.slug
             };
 
             if (mode === 'create') {
@@ -100,6 +101,17 @@ export const TaxisManager = () => {
                                 placeholder="e.g. Comfort Sedan"
                                 required
                             />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Slug (URL)</label>
+                            <input
+                                type="text"
+                                value={currentTaxi.slug || ''}
+                                onChange={e => setCurrentTaxi({ ...currentTaxi, slug: e.target.value })}
+                                className="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none dark:text-white"
+                                placeholder="e.g. comfort-sedan"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">Leave empty to auto-generate from name.</p>
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>

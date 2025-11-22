@@ -59,10 +59,10 @@ export const Blog: React.FC = () => {
                                                 <span className="flex items-center text-blue-600 dark:text-blue-400"><Tag size={16} className="mr-1" /> {blog.category}</span>
                                             </div>
                                             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3 hover:text-blue-600 transition cursor-pointer">
-                                                <Link to={`/blog/${blog.id}`}>{blog.title}</Link>
+                                                <Link to={`/blog/${blog.slug || blog.id}`}>{blog.title}</Link>
                                             </h2>
                                             <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">{blog.excerpt}</p>
-                                            <Link to={`/blog/${blog.id}`} className="inline-flex items-center font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400">
+                                            <Link to={`/blog/${blog.slug || blog.id}`} className="inline-flex items-center font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400">
                                                 Read Article <ArrowRight size={18} className="ml-2" />
                                             </Link>
                                         </div>

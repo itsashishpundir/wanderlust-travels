@@ -16,6 +16,7 @@ export interface Package {
   excluded: string[];
   policies: string[];
   category: 'Trekking' | 'Temple Tour' | 'Adventure' | 'Relaxation' | 'Honeymoon' | string;
+  slug?: string;
 }
 
 export interface Booking {
@@ -47,6 +48,7 @@ export interface Hotel {
   images: string[];
   amenities: string[];
   description: string;
+  slug?: string;
 }
 
 export interface Homestay {
@@ -60,6 +62,7 @@ export interface Homestay {
   images: string[];
   amenities: string[];
   description: string;
+  slug?: string;
 }
 
 export interface TaxiOption {
@@ -71,6 +74,7 @@ export interface TaxiOption {
   baseFare: number;
   capacity: number;
   features: string[];
+  slug?: string;
 }
 
 export interface BlogPost {
@@ -84,6 +88,7 @@ export interface BlogPost {
   image: string;
   category: string;
   tags?: string[];
+  slug?: string;
 }
 
 export enum TravelType {

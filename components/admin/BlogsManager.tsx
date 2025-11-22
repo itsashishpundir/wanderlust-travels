@@ -3,6 +3,9 @@ import { Search, Plus, Edit, Trash2, ChevronLeft, Image as ImageIcon } from 'luc
 import { BlogPost } from '../../types';
 import api from '../../services/api';
 import ImageWithFallback from '../ImageWithFallback';
+import Editor from 'react-simple-wysiwyg';
+
+
 
 export const BlogsManager = () => {
     const [mode, setMode] = useState<'list' | 'create' | 'edit'>('list');
@@ -47,7 +50,8 @@ export const BlogsManager = () => {
                 category: currentBlog.category || 'General',
                 author: currentBlog.author || 'Admin',
                 excerpt: currentBlog.excerpt || '',
-                content: currentBlog.content || ''
+                content: currentBlog.content || '',
+                slug: currentBlog.slug
             };
 
             if (mode === 'create') {
@@ -98,6 +102,17 @@ export const BlogsManager = () => {
                                 required
                             />
                         </div>
+                        <div className="md:col-span-2">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Slug (URL)</label>
+                            <input
+                                type="text"
+                                value={currentBlog.slug || ''}
+                                onChange={e => setCurrentBlog({ ...currentBlog, slug: e.target.value })}
+                                className="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none dark:text-white"
+                                placeholder="e.g. top-10-hidden-gems"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">Leave empty to auto-generate from title.</p>
+                        </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
                             <input
@@ -144,27 +159,14 @@ export const BlogsManager = () => {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Content (HTML Supported)</label>
-
-                        {/* Simple Rich Text Toolbar */}
-                        <div className="flex flex-wrap gap-2 mb-2 p-2 bg-gray-100 dark:bg-gray-700 rounded-t-lg border border-gray-300 dark:border-gray-600 border-b-0">
-                            <button type="button" onClick={() => setCurrentBlog({ ...currentBlog, content: (currentBlog.content || '') + '<b>Bold Text</b>' })} className="px-2 py-1 bg-white dark:bg-gray-600 rounded text-sm font-bold hover:bg-gray-200">B</button>
-                            <button type="button" onClick={() => setCurrentBlog({ ...currentBlog, content: (currentBlog.content || '') + '<i>Italic Text</i>' })} className="px-2 py-1 bg-white dark:bg-gray-600 rounded text-sm italic hover:bg-gray-200">I</button>
-                            <button type="button" onClick={() => setCurrentBlog({ ...currentBlog, content: (currentBlog.content || '') + '<h1>Heading 1</h1>' })} className="px-2 py-1 bg-white dark:bg-gray-600 rounded text-sm font-bold hover:bg-gray-200">H1</button>
-                            <button type="button" onClick={() => setCurrentBlog({ ...currentBlog, content: (currentBlog.content || '') + '<h2>Heading 2</h2>' })} className="px-2 py-1 bg-white dark:bg-gray-600 rounded text-sm font-bold hover:bg-gray-200">H2</button>
-                            <button type="button" onClick={() => setCurrentBlog({ ...currentBlog, content: (currentBlog.content || '') + '<ul>\n<li>List Item 1</li>\n<li>List Item 2</li>\n</ul>' })} className="px-2 py-1 bg-white dark:bg-gray-600 rounded text-sm hover:bg-gray-200">List</button>
-                            <button type="button" onClick={() => setCurrentBlog({ ...currentBlog, content: (currentBlog.content || '') + '<ol>\n<li>Item 1</li>\n<li>Item 2</li>\n</ol>' })} className="px-2 py-1 bg-white dark:bg-gray-600 rounded text-sm hover:bg-gray-200">Ordered</button>
-                            <button type="button" onClick={() => setCurrentBlog({ ...currentBlog, content: (currentBlog.content || '') + '<a href="#" class="text-blue-600 hover:underline">Link Text</a>' })} className="px-2 py-1 bg-white dark:bg-gray-600 rounded text-sm text-blue-600 hover:bg-gray-200">Link</button>
-                            <button type="button" onClick={() => setCurrentBlog({ ...currentBlog, content: (currentBlog.content || '') + '<span style="color: red;">Red Text</span>' })} className="px-2 py-1 bg-white dark:bg-gray-600 rounded text-sm text-red-500 hover:bg-gray-200">Color</button>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Content</label>
+                        <div className="bg-white dark:bg-gray-700 rounded-lg text-black overflow-hidden border border-gray-300 dark:border-gray-600">
+                            <Editor
+                                value={currentBlog.content || ''}
+                                onChange={(e) => setCurrentBlog({ ...currentBlog, content: e.target.value })}
+                                containerProps={{ style: { height: '300px' } }}
+                            />
                         </div>
-
-                        <textarea
-                            rows={12}
-                            value={currentBlog.content || ''}
-                            onChange={e => setCurrentBlog({ ...currentBlog, content: e.target.value })}
-                            className="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-b-lg focus:ring-2 focus:ring-blue-500 outline-none dark:text-white font-mono text-sm"
-                            placeholder="Write your article here..."
-                        ></textarea>
                     </div>
 
                     <div>

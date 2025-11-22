@@ -101,7 +101,10 @@ export const HotelDetails: React.FC = () => {
                             {activeTab === 'overview' && (
                                 <div className="animate-fade-in">
                                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">About this Hotel</h3>
-                                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-6">{hotel.description || 'Experience luxury and comfort at its finest. This property offers top-notch amenities and excellent service to make your stay memorable.'}</p>
+                                    <div
+                                        className="text-gray-600 dark:text-gray-300 leading-relaxed mb-6 prose dark:prose-invert max-w-none"
+                                        dangerouslySetInnerHTML={{ __html: hotel.description || 'Experience luxury and comfort at its finest. This property offers top-notch amenities and excellent service to make your stay memorable.' }}
+                                    />
                                 </div>
                             )}
 

@@ -3,21 +3,8 @@ import { Search, Plus, Edit, Trash2, ChevronLeft, Image as ImageIcon, Star } fro
 import { Homestay } from '../../types';
 import api from '../../services/api';
 import ImageWithFallback from '../ImageWithFallback';
+import Editor from 'react-simple-wysiwyg';
 
-const Badge = ({ children, color }: { children: React.ReactNode, color: string }) => {
-    const colorClasses: { [key: string]: string } = {
-        green: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-        red: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
-        blue: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-        yellow: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-        gray: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
-    };
-    return (
-        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${colorClasses[color] || colorClasses.gray}`}>
-            {children}
-        </span>
-    );
-};
 
 export const HomestaysManager = () => {
     const [mode, setMode] = useState<'list' | 'create' | 'edit'>('list');
@@ -65,7 +52,8 @@ export const HomestaysManager = () => {
                 name: currentHomestay.name || 'New Homestay',
                 location: currentHomestay.location || 'Unknown',
                 pricePerNight: currentHomestay.pricePerNight || 0,
-                description: currentHomestay.description || ''
+                description: currentHomestay.description || '',
+                slug: currentHomestay.slug
             };
 
             if (mode === 'create') {
@@ -117,6 +105,17 @@ export const HomestaysManager = () => {
                             />
                         </div>
                         <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Slug (URL)</label>
+                            <input
+                                type="text"
+                                value={currentHomestay.slug || ''}
+                                onChange={e => setCurrentHomestay({ ...currentHomestay, slug: e.target.value })}
+                                className="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none dark:text-white"
+                                placeholder="e.g. cozy-mountain-cabin"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">Leave empty to auto-generate from name.</p>
+                        </div>
+                        <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Location</label>
                             <input
                                 type="text"
@@ -138,7 +137,7 @@ export const HomestaysManager = () => {
                                 required
                             />
                         </div>
-                        <div>
+                        <div className="md:col-span-2">
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Amenities (comma separated)</label>
                             <input
                                 type="text"
@@ -152,13 +151,13 @@ export const HomestaysManager = () => {
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
-                        <textarea
-                            rows={4}
-                            value={currentHomestay.description || ''}
-                            onChange={e => setCurrentHomestay({ ...currentHomestay, description: e.target.value })}
-                            className="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none dark:text-white"
-                            placeholder="Homestay description..."
-                        ></textarea>
+                        <div className="bg-white dark:bg-gray-700 rounded-lg text-black overflow-hidden border border-gray-300 dark:border-gray-600">
+                            <Editor
+                                value={currentHomestay.description || ''}
+                                onChange={(e) => setCurrentHomestay({ ...currentHomestay, description: e.target.value })}
+                                containerProps={{ style: { height: '200px' } }}
+                            />
+                        </div>
                     </div>
 
                     <div>
